@@ -1,5 +1,10 @@
 import React from "react";
-import { HashRouter as Router, Route, Switch } from "react-router-dom";
+import {
+  HashRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from "react-router-dom";
 import Profile from "routes/Profile";
 import Auth from "../routes/Auth";
 import Home from "../routes/Home";
@@ -21,9 +26,13 @@ const AppRouter = ({ isLoggedIn }) => {
             </Route>
           </>
         ) : (
-          <Route exact path="/">
-            <Auth />
-          </Route>
+          <>
+            <Route exact path="/">
+              <Auth />
+            </Route>
+            {/* / 이외의 route로 가게 되면 /로 돌아가시오! */}
+            <Redirect from="*" to="/" />
+          </>
         )}
       </Switch>
     </Router>
