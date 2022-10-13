@@ -1,7 +1,7 @@
 import { dbService } from "fbase";
 import React, { useEffect, useState } from "react";
 
-const Home = () => {
+const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
   const [tweets, setTweets] = useState([]);
   const getTweets = async () => {
@@ -22,6 +22,7 @@ const Home = () => {
     await dbService.collection("tweets").add({
       text: tweet,
       createdAt: Date.now(),
+      creatorId: userObj.uid,
     });
     setTweet("");
   };
