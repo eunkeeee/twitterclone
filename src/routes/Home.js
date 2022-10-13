@@ -1,22 +1,26 @@
+import Tweet from "components/Tweet";
 import { dbService } from "fbase";
 import React, { useEffect, useState } from "react";
 
 const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
   const [tweets, setTweets] = useState([]);
-  const getTweets = async () => {
-    const dbTweets = await dbService.collection("tweets").get();
-    dbTweets.forEach((document) => {
-      const tweetObject = {
-        ...document.data(),
-        id: document.id,
-      };
-      setTweets((prev) => [tweetObject, ...prev]);
-    });
-  };
+
   useEffect(() => {
-    getTweets();
+    // RealTime
+    dbService
+      .collection("tweets")
+      .orderBy("createdAt", "desc")
+      .onSnapshot((snapshot) => {
+        const tweetArray = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setTweets(tweetArray);
+        console.log(tweetArray);
+      });
   }, []);
+
   const onSubmit = async (event) => {
     event.preventDefault();
     await dbService.collection("tweets").add({
@@ -46,9 +50,11 @@ const Home = ({ userObj }) => {
       </form>
       <div key={tweet.id}>
         {tweets.map((tweet) => (
-          <div>
-            <h4>{tweet.tweet}</h4>
-          </div>
+          <Tweet
+            key={tweet.id}
+            tweetObj={tweet}
+            isOwner={tweet.creatorId === userObj.uid}
+          />
         ))}
       </div>
     </div>
