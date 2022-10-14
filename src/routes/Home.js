@@ -1,6 +1,7 @@
-import Tweet from "components/Tweet";
-import { dbService } from "fbase";
 import React, { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { dbService, storageService } from "fbase";
+import Tweet from "components/Tweet";
 
 const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
@@ -24,12 +25,15 @@ const Home = ({ userObj }) => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    await dbService.collection("tweets").add({
-      text: tweet,
-      createdAt: Date.now(),
-      creatorId: userObj.uid,
-    });
-    setTweet("");
+    const fileRef = storageService.ref().child(`${userObj.email}/${uuidv4()}`);
+    const response = await fileRef.putString(attachment, "data_url");
+    console.log(response);
+    // await dbService.collection("tweets").add({
+    //   text: tweet,
+    //   createdAt: Date.now(),
+    //   creatorId: userObj.uid,
+    // });
+    // setTweet("");
   };
   const onChange = (event) => {
     const {
