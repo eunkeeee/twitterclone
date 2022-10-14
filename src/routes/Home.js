@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
   const [tweets, setTweets] = useState([]);
+  const [attachment, setAttachment] = useState();
 
   useEffect(() => {
     // RealTime
@@ -38,15 +39,20 @@ const Home = ({ userObj }) => {
   };
   const onFileChange = (event) => {
     const {
-      target: { files },
+      target: { files }, // 많은 파일에 접근할 수 있지만
     } = event;
-    const theFile = files[0];
-    const reader = new FileReader();
+    const theFile = files[0]; // 우리의 input은 한 개의 파일만 받음
+    const reader = new FileReader(); // create a reader
     reader.onloadend = (finishedEvent) => {
-      console.log(finishedEvent);
+      const {
+        currentTarget: { result },
+      } = finishedEvent;
+      setAttachment(result);
     };
     reader.readAsDataURL(theFile);
   };
+  const onClearAttatchmentClick = () => setAttachment(null);
+
   return (
     <div>
       <form onSubmit={onSubmit}>
@@ -59,6 +65,12 @@ const Home = ({ userObj }) => {
         />
         <input type="file" accept="image/*" onChange={onFileChange} />
         <input type="submit" value="Tweet!" />
+        {attachment && (
+          <div>
+            <img src={attachment} width="50px" height="50px" />
+            <button onClick={onClearAttatchmentClick}>Clear</button>
+          </div>
+        )}
       </form>
       <div key={tweet.id}>
         {tweets.map((tweet) => (
