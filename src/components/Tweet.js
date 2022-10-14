@@ -1,4 +1,4 @@
-import { dbService } from "fbase";
+import { dbService, storageService } from "fbase";
 import React, { useState } from "react";
 
 const Tweet = ({ key, tweetObj, isOwner }) => {
@@ -8,6 +8,8 @@ const Tweet = ({ key, tweetObj, isOwner }) => {
     const ok = window.confirm("Are you sure, you want to delete this Tweet?");
     if (ok) {
       await dbService.doc(`tweets/${tweetObj.id}`).delete();
+      // refFromURL : storage에 들은 file의 URL --> (랜덤으로 생성했던) uuid를 포함한 주소를 알려줌
+      await storageService.refFromURL(tweetObj.attachmentURL).delete();
     }
   };
   const toggleEditing = () => {
