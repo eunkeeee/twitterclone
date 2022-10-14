@@ -19,7 +19,6 @@ const Home = ({ userObj }) => {
           ...doc.data(),
         }));
         setTweets(tweetArray);
-        console.log(tweetArray);
       });
   }, []);
 
