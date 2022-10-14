@@ -37,6 +37,7 @@ const Home = ({ userObj }) => {
       text: tweet,
       createdAt: Date.now(),
       creatorId: userObj.uid,
+      creatorEmail: userObj.email,
       attachmentURL,
     };
     await dbService.collection("tweets").add(tweetObj);

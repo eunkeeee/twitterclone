@@ -49,6 +49,7 @@ const Tweet = ({ key, tweetObj, isOwner }) => {
       ) : (
         <>
           <h4>{tweetObj.text}</h4>
+          <h6>{tweetObj.creatorEmail}</h6>
           {tweetObj.attachmentURL && (
             <img src={tweetObj.attachmentURL} width="50px" height="50px" />
           )}
