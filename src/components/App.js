@@ -38,7 +38,6 @@ function App() {
       ) : (
         "Initializing..."
       )}
-      <footer>&copy; Twitter {new Date().getFullYear()}</footer>
     </>
   );
 }
