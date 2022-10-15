@@ -1,23 +1,24 @@
-import { dbService, storageService } from "fbase";
 import React, { useState } from "react";
+import { dbService, storageService } from "fbase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash, faPencilAlt } from "@fortawesome/free-solid-svg-icons";
 
-const Tweet = ({ key, tweetObj, isOwner }) => {
+const Tweet = ({ tweetObj, isOwner }) => {
   const [editing, setEditing] = useState(false);
   const [newTweet, setNewTweet] = useState(tweetObj.text);
   const onDeleteClick = async () => {
-    const ok = window.confirm("Are you sure, you want to delete this Tweet?");
+    const ok = window.confirm("Are you sure you want to delete this tweet?");
     if (ok) {
       await dbService.doc(`tweets/${tweetObj.id}`).delete();
-      // refFromURL : storage에 들은 file의 URL --> (랜덤으로 생성했던) uuid를 포함한 주소를 알려줌
-      await storageService.refFromURL(tweetObj.attachmentURL).delete();
+      await storageService.refFromURL(tweetObj.attachmentUrl).delete();
     }
   };
-  const toggleEditing = () => {
-    setEditing((prev) => !prev);
-  };
+  const toggleEditing = () => setEditing((prev) => !prev);
   const onSubmit = async (event) => {
     event.preventDefault();
-    await dbService.doc(`tweets/${tweetObj.id}`).update({ text: newTweet });
+    await dbService.doc(`tweets/${tweetObj.id}`).update({
+      text: newTweet,
+    });
     setEditing(false);
   };
   const onChange = (event) => {
@@ -27,37 +28,38 @@ const Tweet = ({ key, tweetObj, isOwner }) => {
     setNewTweet(value);
   };
   return (
-    <div>
+    <div className="tweet">
       {editing ? (
         <>
-          {isOwner && (
-            <>
-              <form onSubmit={onSubmit}>
-                <input
-                  type="text"
-                  placeholder="Edit your tweet"
-                  value={newTweet}
-                  required
-                  onChange={onChange}
-                />
-                <input type="submit" value="Update Tweet" />
-              </form>
-              <button onClick={toggleEditing}>Cancel</button>
-            </>
-          )}
+          <form onSubmit={onSubmit} className="container tweetEdit">
+            <input
+              type="text"
+              placeholder="Edit your tweet"
+              value={newTweet}
+              required
+              autoFocus
+              onChange={onChange}
+              className="formInput"
+            />
+            <input type="submit" value="Update Tweet" className="formBtn" />
+          </form>
+          <span onClick={toggleEditing} className="formBtn cancelBtn">
+            Cancel
+          </span>
         </>
       ) : (
         <>
           <h4>{tweetObj.text}</h4>
-          {/* <h6>{tweetObj.creatorEmail}</h6> */}
-          {tweetObj.attachmentURL && (
-            <img src={tweetObj.attachmentURL} width="50px" height="50px" />
-          )}
+          {tweetObj.attachmentUrl && <img src={tweetObj.attachmentUrl} />}
           {isOwner && (
-            <>
-              <button onClick={onDeleteClick}>Delete Tweet</button>
-              <button onClick={toggleEditing}>Edit Tweet</button>
-            </>
+            <div class="tweet__actions">
+              <span onClick={onDeleteClick}>
+                <FontAwesomeIcon icon={faTrash} />
+              </span>
+              <span onClick={toggleEditing}>
+                <FontAwesomeIcon icon={faPencilAlt} />
+              </span>
+            </div>
           )}
         </>
       )}

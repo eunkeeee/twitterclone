@@ -1,27 +1,30 @@
 import React, { useState } from "react";
-import { dbService, storageService } from "fbase";
 import { v4 as uuidv4 } from "uuid";
+import { storageService, dbService } from "fbase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const TweetFactory = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
   const [attachment, setAttachment] = useState("");
-
   const onSubmit = async (event) => {
+    if (tweet === "") {
+      return;
+    }
     event.preventDefault();
-    let attachmentURL = "";
+    let attachmentUrl = "";
     if (attachment !== "") {
       const attachmentRef = storageService
         .ref()
-        .child(`${userObj.email}/${uuidv4()}`);
+        .child(`${userObj.uid}/${uuidv4()}`);
       const response = await attachmentRef.putString(attachment, "data_url");
-      attachmentURL = await response.ref.getDownloadURL();
+      attachmentUrl = await response.ref.getDownloadURL();
     }
     const tweetObj = {
       text: tweet,
       createdAt: Date.now(),
       creatorId: userObj.uid,
-      // creatorEmail: userObj.email,
-      attachmentURL,
+      attachmentUrl,
     };
     await dbService.collection("tweets").add(tweetObj);
     setTweet("");
@@ -35,10 +38,10 @@ const TweetFactory = ({ userObj }) => {
   };
   const onFileChange = (event) => {
     const {
-      target: { files }, // 많은 파일에 접근할 수 있지만
+      target: { files },
     } = event;
-    const theFile = files[0]; // 우리의 input은 한 개의 파일만 받음
-    const reader = new FileReader(); // create a reader
+    const theFile = files[0];
+    const reader = new FileReader();
     reader.onloadend = (finishedEvent) => {
       const {
         currentTarget: { result },
@@ -47,23 +50,45 @@ const TweetFactory = ({ userObj }) => {
     };
     reader.readAsDataURL(theFile);
   };
-  const onClearAttatchmentClick = () => setAttachment(null);
-
+  const onClearAttachment = () => setAttachment("");
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} className="factoryForm">
+      <div className="factoryInput__container">
+        <input
+          className="factoryInput__input"
+          value={tweet}
+          onChange={onChange}
+          type="text"
+          placeholder="What's on your mind?"
+          maxLength={120}
+        />
+        <input type="submit" value="&rarr;" className="factoryInput__arrow" />
+      </div>
+      <label for="attach-file" className="factoryInput__label">
+        <span>Add photos</span>
+        <FontAwesomeIcon icon={faPlus} />
+      </label>
       <input
-        type="text"
-        value={tweet}
-        onChange={onChange}
-        placeholder="What's on your mind?"
-        maxLength={120}
+        id="attach-file"
+        type="file"
+        accept="image/*"
+        onChange={onFileChange}
+        style={{
+          opacity: 0,
+        }}
       />
-      <input type="file" accept="image/*" onChange={onFileChange} />
-      <input type="submit" value="Tweet!" />
       {attachment && (
-        <div>
-          <img src={attachment} width="50px" height="50px" />
-          <button onClick={onClearAttatchmentClick}>Clear</button>
+        <div className="factoryForm__attachment">
+          <img
+            src={attachment}
+            style={{
+              backgroundImage: attachment,
+            }}
+          />
+          <div className="factoryForm__clear" onClick={onClearAttachment}>
+            <span>Remove</span>
+            <FontAwesomeIcon icon={faTimes} />
+          </div>
         </div>
       )}
     </form>
